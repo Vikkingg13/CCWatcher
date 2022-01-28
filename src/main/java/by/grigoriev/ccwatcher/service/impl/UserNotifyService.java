@@ -6,15 +6,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class UserNotifyService {
     private static Logger logger = LoggerFactory.getLogger(UserNotifyService.class);
 
-    @Value("${coin.percent.warn}")
-    private double percentWarn;
+    @Value("${marginal.percent.value}")
+    private double marginPercent;
 
     @Autowired
     CoinServiceImpl service;
@@ -22,24 +21,29 @@ public class UserNotifyService {
     List<User> users = new ArrayList<>();
 
     public void notifyLog() {
-        users.stream()
-                .filter(this::check)
-                .forEach(this::info);
+        Iterator<User> iterator = users.iterator();
+        while (iterator.hasNext()) {
+            User user = iterator.next();
+            if (check(user)) {
+                log(user);
+                iterator.remove();
+            }
+        }
     }
 
-    private void info(User user) {
+    private void log(User user) {
         logger.warn("{} {} {}", user.getSymbol(), user.getName(), percentIncrease(user));
     }
 
     private boolean check(User user) {
         double percent = percentIncrease(user);
-        return percent > percentWarn;
+        return percent > marginPercent;
     }
 
     private double percentIncrease(User user) {
         double fixedPrice = user.priceUsd;
         double currentPrice = service.findBySymbol(user.getSymbol()).getPriceUSD();
-        return (currentPrice - fixedPrice)/fixedPrice * 100;
+        return Math.abs((currentPrice - fixedPrice)/fixedPrice * 100);
     }
 
     public void addUser(String name, String symbol, double price) {
