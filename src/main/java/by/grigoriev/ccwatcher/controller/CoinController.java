@@ -2,7 +2,7 @@ package by.grigoriev.ccwatcher.controller;
 
 import by.grigoriev.ccwatcher.model.CoinModel;
 import by.grigoriev.ccwatcher.service.CoinService;
-import by.grigoriev.ccwatcher.service.impl.UserNotifyService;
+import by.grigoriev.ccwatcher.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +18,7 @@ public class CoinController {
     private CoinService service;
 
     @Autowired
-    private UserNotifyService listenerService;
+    private UserService notifyService;
 
     @GetMapping
     public List<CoinModel> findAll() {
@@ -33,7 +33,7 @@ public class CoinController {
     @GetMapping("/notify")
     public CoinModel notify(@RequestParam String name, @RequestParam String symbol) {
         CoinModel coin = service.findBySymbol(symbol);
-        listenerService.addUser(name, symbol, coin.getPriceUSD());
+        notifyService.addUser(name, symbol, coin.getPriceUSD());
         return coin;
     }
 }

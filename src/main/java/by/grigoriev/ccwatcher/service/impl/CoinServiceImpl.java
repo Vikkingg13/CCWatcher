@@ -1,5 +1,7 @@
 package by.grigoriev.ccwatcher.service.impl;
 
+import by.grigoriev.ccwatcher.converter.CoinConverter;
+import by.grigoriev.ccwatcher.dto.Coin;
 import by.grigoriev.ccwatcher.model.CoinModel;
 import by.grigoriev.ccwatcher.repository.CoinRepository;
 import by.grigoriev.ccwatcher.service.CoinService;
@@ -24,7 +26,8 @@ public class CoinServiceImpl implements CoinService {
     }
 
     @Override
-    public List<CoinModel> saveAll(List<CoinModel> coinModels) {
-        return (List<CoinModel>) coinRepository.saveAll(coinModels);
+    public List<CoinModel> saveAll(List<Coin> coins) {
+        List<CoinModel> models = CoinConverter.toCoinList(coins);
+        return (List<CoinModel>) coinRepository.saveAll(models);
     }
 }
